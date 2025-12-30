@@ -240,10 +240,10 @@
 |--------|------|
 | Germinal | - |
 | RFantiboy | [bioRxiv](https://www.biorxiv.org/content/10.1101/2024.03.14.585103) |
-| EvolveX | - |
-| mBER | - |
-| ODesign | - |
-| BoltzGen | - |
+| EvolveX | [Github](https://github.com/SantiagoMille/germinal) |
+| mBER | [Github](https://github.com/manifoldbio/mber-open) |
+| ODesign | [Github](https://github.com/The-Institute-for-AI-Molecular-Design/ODesign/tree/ODesign-antibody) |
+| BoltzGen | [bioRxiv](https://www.biorxiv.org/content/10.1101/2025.11.20.689494v1)- |
 | FoldCraft | - |
 | Nanodesigner | - |
 | GeoFlow-V2/V3 | - |
@@ -252,9 +252,9 @@
 #### CDR 설계
 | 모델명 | 링크 |
 |--------|------|
-| HalluDesign | - |
-| UniMoMo | - |
-| MFDesign | - |
+| HalluDesign | [Github](https://github.com/MinchaoFang/HalluDesign) |
+| UniMoMo | [ICML2025](https://openreview.net/pdf?id=KUN7A7Okb6) |
+| MFDesign | [Github](https://github.com/yangnianzu0515/MFDesign)- |
 
 #### 기타 항체 도구
 | 모델명 | 링크 |
