@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Piano Hero</title>
+  <style>
+    :root {
+      --bg1: #8ee3ff;
+      --bg2: #b9fbc0;
+      --panel: #ffffffcc;
+      --lane-border: #ffffff88;
+      --hit-line: #ff4d6d;
+      --text: #2b2d42;
+      --perfect: #06d6a0;
+      --good: #ffd166;
+      --miss: #ef476f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 20%, #fff8b8 0%, transparent 30%),
+                  radial-gradient(circle at 80% 30%, #ffc6ff 0%, transparent 25%),
+                  linear-gradient(140deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .wrap {
+      width: min(920px, 95vw);
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr;
+    }
+
+    .hud {
+      background: var(--panel);
+      border: 3px solid #ffffff;
+      border-radius: 18px;
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      box-shadow: 0 8px 20px #0000001f;
+    }
+
+    .stat {
+      background: #ffffff8a;
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .label {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      display: block;
+    }
+
+    .value {
+      font-size: 1.2rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      background: linear-gradient(180deg, #ff8fab, #ff5d8f);
+      color: #fff;
+      font-weight: 800;
+      padding: 10px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 6px 14px #0000002b;
+      font-size: 1rem;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .canvas-wrap {
+      position: relative;
+      border: 4px solid #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #1f2340, #2c315a);
+      box-shadow: 0 12px 28px #00000030;
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: min(72vh, 640px);
+      background:
+        radial-gradient(circle at 20% 20%, #40487a66 0%, transparent 40%),
+        radial-gradient(circle at 80% 10%, #9d4edd33 0%, transparent 35%),
+        linear-gradient(180deg, #232946, #161b33);
+    }
+
+    .hint {
+      text-align: center;
+      font-size: 0.9rem;
+      background: #ffffff88;
+      border-radius: 12px;
+      padding: 8px 12px;
+    }
+
+    @media (max-width: 640px) {
+      .hud { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .value { font-size: 1.05rem; }
+      button { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hud" aria-label="Game status">
+      <div class="stat"><span class="label">Score</span><span id="score" class="value">0</span></div>
+      <div class="stat"><span class="label">Combo</span><span id="combo" class="value">0</span></div>
+      <div class="stat"><span class="label">Best Combo</span><span id="bestCombo" class="value">0</span></div>
+      <div class="stat"><span class="label">Feedback</span><span id="feedback" class="value">Ready!</span></div>
+    </section>
+
+    <section class="controls">
+      <button id="startBtn">Start Game</button>
+      <button id="restartBtn" disabled>Restart</button>
+    </section>
+
+    <section class="canvas-wrap">
+      <canvas id="gameCanvas" width="900" height="640"></canvas>
+    </section>
+
+    <p class="hint">Keyboard: <strong>A S D F G</strong> &middot; Mobile: tap a lane near the hit line.</p>
+  </main>
+
+  <script>
+    const LANES = ["A", "S", "D", "F", "G"];
+    const LANE_COLORS = ["#ff6b6b", "#ffd166", "#06d6a0", "#4cc9f0", "#b388ff"];
+    const SCORE_EL = document.getElementById("score");
+    const COMBO_EL = document.getElementById("combo");
+    const BEST_COMBO_EL = document.getElementById("bestCombo");
+    const FEEDBACK_EL = document.getElementById("feedback");
+    const START_BTN = document.getElementById("startBtn");
+    const RESTART_BTN = document.getElementById("restartBtn");
+    const CANVAS = document.getElementById("gameCanvas");
+    const CTX = CANVAS.getContext("2d");
+
+    const game = {
+      running: false,
+      score: 0,
+      combo: 0,
+      bestCombo: 0,
+      laneFlash: Array(5).fill(0),
+      notes: [],
+      particles: [],
+      spawnTimer: 0,
+      spawnInterval: 0.8,
+      speed: 210,
+      difficultyTimer: 0,
+      feedback: "Ready!",
+      feedbackColor: "#fff",
+      lastTime: 0,
+      hitLineY: 0,
+      perfectWindow: 22,
+      goodWindow: 48,
+      bgPulse: 0,
+      bgMusicStarted: false,
+    };
+
+    let audioCtx;
+    let bgGain;
+    let masterGain;
+
+    function resizeCanvas() {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const rect = CANVAS.getBoundingClientRect();
+      CANVAS.width = Math.floor(rect.width * dpr);
+      CANVAS.height = Math.floor(rect.height * dpr);
+      CTX.setTransform(dpr, 0, 0, dpr, 0, 0);
+      game.hitLineY = rect.height * 0.82;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function setupAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.25;
+      masterGain.connect(audioCtx.destination);
+
+      bgGain = audioCtx.createGain();
+      bgGain.gain.value = 0.09;
+      bgGain.connect(masterGain);
+    }
+
+    function playKeyTone(laneIdx) {
+      if (!audioCtx) return;
+      const freqs = [261.63, 293.66, 329.63, 349.23, 392.0];
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freqs[laneIdx], now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.7, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    }
+
+    function playBackgroundLoop() {
+      if (!audioCtx || game.bgMusicStarted) return;
+      game.bgMusicStarted = true;
+      const progression = [196.00, 220.00, 246.94, 174.61];
+      const step = 0.6;
+      const now = audioCtx.currentTime + 0.05;
+
+      for (let i = 0; i < progression.length; i++) {
+        const t = now + i * step;
+        const osc = audioCtx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(progression[i], t);
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.3, t + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + step);
+
+        osc.connect(gain);
+        gain.connect(bgGain);
+        osc.start(t);
+        osc.stop(t + step);
+      }
+
+      setTimeout(() => {
+        if (game.running) playBackgroundLoop();
+      }, progression.length * step * 1000 - 25);
+    }
+
+    function resetGameState() {
+      game.score = 0;
+      game.combo = 0;
+      game.bestCombo = 0;
+      game.notes = [];
+      game.particles = [];
+      game.spawnTimer = 0;
+      game.spawnInterval = 0.8;
+      game.speed = 210;
+      game.difficultyTimer = 0;
+      game.feedback = "Go!";
+      game.feedbackColor = "#fff";
+      game.lastTime = performance.now();
+      game.bgPulse = 0;
+      game.bgMusicStarted = false;
+      game.laneFlash = Array(5).fill(0);
+      updateHUD();
+    }
+
+    function startGame() {
+      setupAudio();
+      audioCtx.resume();
+      resetGameState();
+      game.running = true;
+      START_BTN.disabled = true;
+      RESTART_BTN.disabled = false;
+      requestAnimationFrame(loop);
+      playBackgroundLoop();
+    }
+
+    function restartGame() {
+      if (!audioCtx) setupAudio();
+      audioCtx.resume();
+      resetGameState();
+      game.running = true;
+      playBackgroundLoop();
+      requestAnimationFrame(loop);
+    }
+
+    function spawnNote() {
+      const lane = Math.floor(Math.random() * 5);
+      game.notes.push({
+        lane,
+        y: -30,
+        h: 26,
+        w: 0,
+        judged: false,
+      });
+    }
+
+    function setFeedback(text, color) {
+      game.feedback = text;
+      game.feedbackColor = color;
+      FEEDBACK_EL.textContent = text;
+      FEEDBACK_EL.style.color = color;
+    }
+
+    function addParticles(x, y, color) {
+      for (let i = 0; i < 14; i++) {
+        const ang = (Math.PI * 2 * i) / 14 + Math.random() * 0.2;
+        const speed = 80 + Math.random() * 140;
+        game.particles.push({
+          x,
+          y,
+          vx: Math.cos(ang) * speed,
+          vy: Math.sin(ang) * speed - 60,
+          life: 0.45 + Math.random() * 0.35,
+          t: 0,
+          color,
+          size: 2 + Math.random() * 4,
+        });
+      }
+    }
+
+    function tryHit(laneIdx) {
+      if (!game.running) return;
+      game.laneFlash[laneIdx] = 0.16;
+
+      const laneNotes = game.notes
+        .filter(n => n.lane === laneIdx && !n.judged)
+        .sort((a, b) => b.y - a.y);
+
+      if (!laneNotes.length) {
+        miss();
+        return;
+      }
+
+      const note = laneNotes.find(n => n.y <= game.hitLineY + game.goodWindow + 4);
+      if (!note) {
+        miss();
+        return;
+      }
+
+      const dist = Math.abs((note.y + note.h * 0.5) - game.hitLineY);
+      const laneWidth = CANVAS.getBoundingClientRect().width / 5;
+      const px = laneIdx * laneWidth + laneWidth * 0.5;
+
+      if (dist <= game.perfectWindow) {
+        note.judged = true;
+        game.score += 120 + game.combo * 2;
+        game.combo += 1;
+        game.bestCombo = Math.max(game.bestCombo, game.combo);
+        setFeedback("Perfect!", "#06d6a0");
+        addParticles(px, game.hitLineY, LANE_COLORS[laneIdx]);
+        playKeyTone(laneIdx);
+      } else if (dist <= game.goodWindow) {
+        note.judged = true;
+        game.score += 70 + game.combo;
+        game.combo += 1;
+        game.bestCombo = Math.max(game.bestCombo, game.combo);
+        setFeedback("Good!", "#ffd166");
+        addParticles(px, game.hitLineY, LANE_COLORS[laneIdx]);
+        playKeyTone(laneIdx);
+      } else {
+        miss();
+      }
+
+      updateHUD();
+    }
+
+    function miss() {
+      game.combo = 0;
+      setFeedback("Miss!", "#ef476f");
+      updateHUD();
+    }
+
+    function updateHUD() {
+      SCORE_EL.textContent = Math.floor(game.score);
+      COMBO_EL.textContent = game.combo;
+      BEST_COMBO_EL.textContent = game.bestCombo;
+      FEEDBACK_EL.textContent = game.feedback;
+    }
+
+    function update(dt) {
+      game.spawnTimer += dt;
+      game.difficultyTimer += dt;
+      game.bgPulse += dt * 2.5;
+
+      if (game.difficultyTimer > 6) {
+        game.difficultyTimer = 0;
+        game.speed += 15;
+        game.spawnInterval = Math.max(0.35, game.spawnInterval - 0.05);
+      }
+
+      while (game.spawnTimer >= game.spawnInterval) {
+        game.spawnTimer -= game.spawnInterval;
+        spawnNote();
+      }
+
+      for (const n of game.notes) {
+        n.y += game.speed * dt;
+      }
+
+      const canvasH = CANVAS.getBoundingClientRect().height;
+      for (const n of game.notes) {
+        if (!n.judged && n.y > game.hitLineY + game.goodWindow + 28) {
+          n.judged = true;
+          miss();
+        }
+      }
+
+      game.notes = game.notes.filter(n => n.y < canvasH + 50 && !n.judged);
+
+      for (const p of game.particles) {
+        p.t += dt;
+        p.vy += 420 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+      }
+      game.particles = game.particles.filter(p => p.t < p.life);
+
+      game.laneFlash = game.laneFlash.map(v => Math.max(0, v - dt));
+    }
+
+    function drawRoundedRect(x, y, w, h, r, color) {
+      CTX.fillStyle = color;
+      CTX.beginPath();
+      CTX.moveTo(x + r, y);
+      CTX.lineTo(x + w - r, y);
+      CTX.quadraticCurveTo(x + w, y, x + w, y + r);
+      CTX.lineTo(x + w, y + h - r);
+      CTX.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      CTX.lineTo(x + r, y + h);
+      CTX.quadraticCurveTo(x, y + h, x, y + h - r);
+      CTX.lineTo(x, y + r);
+      CTX.quadraticCurveTo(x, y, x + r, y);
+      CTX.closePath();
+      CTX.fill();
+    }
+
+    function render() {
+      const rect = CANVAS.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      const laneW = w / 5;
+
+      const pulse = (Math.sin(game.bgPulse) + 1) * 0.5;
+      CTX.clearRect(0, 0, w, h);
+      CTX.fillStyle = `rgba(84, 103, 255, ${0.13 + pulse * 0.05})`;
+      CTX.fillRect(0, 0, w, h);
+
+      for (let i = 0; i < 5; i++) {
+        const x = i * laneW;
+        const alpha = 0.15 + (i % 2) * 0.04 + game.laneFlash[i] * 0.4;
+        CTX.fillStyle = `rgba(255,255,255,${alpha})`;
+        CTX.fillRect(x, 0, laneW, h);
+
+        CTX.strokeStyle = "rgba(255,255,255,0.3)";
+        CTX.lineWidth = 2;
+        CTX.beginPath();
+        CTX.moveTo(x, 0);
+        CTX.lineTo(x, h);
+        CTX.stroke();
+
+        CTX.fillStyle = "rgba(255,255,255,0.92)";
+        CTX.font = "bold 22px Comic Sans MS, sans-serif";
+        CTX.textAlign = "center";
+        CTX.fillText(LANES[i], x + laneW / 2, h - 16);
+      }
+
+      CTX.strokeStyle = "rgba(255,255,255,0.38)";
+      CTX.beginPath();
+      CTX.moveTo(w, 0);
+      CTX.lineTo(w, h);
+      CTX.stroke();
+
+      CTX.strokeStyle = "#ff4d6d";
+      CTX.lineWidth = 6;
+      CTX.beginPath();
+      CTX.moveTo(0, game.hitLineY);
+      CTX.lineTo(w, game.hitLineY);
+      CTX.stroke();
+
+      CTX.lineWidth = 1;
+      for (const n of game.notes) {
+        n.w = laneW * 0.72;
+        const x = n.lane * laneW + (laneW - n.w) / 2;
+        drawRoundedRect(x, n.y - n.h / 2, n.w, n.h, 10, LANE_COLORS[n.lane]);
+      }
+
+      for (const p of game.particles) {
+        const life = 1 - p.t / p.life;
+        CTX.globalAlpha = Math.max(0, life);
+        CTX.fillStyle = p.color;
+        CTX.beginPath();
+        CTX.arc(p.x, p.y, p.size * life, 0, Math.PI * 2);
+        CTX.fill();
+      }
+      CTX.globalAlpha = 1;
+    }
+
+    function loop(t) {
+      if (!game.running) return;
+      const dt = Math.min(0.033, (t - game.lastTime) / 1000 || 0);
+      game.lastTime = t;
+
+      update(dt);
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    function keyToLane(key) {
+      const idx = LANES.indexOf(key.toUpperCase());
+      return idx;
+    }
+
+    function onKeyDown(e) {
+      const lane = keyToLane(e.key);
+      if (lane === -1) return;
+      e.preventDefault();
+      tryHit(lane);
+    }
+
+    function laneFromPointer(clientX) {
+      const rect = CANVAS.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const lane = Math.floor((x / rect.width) * 5);
+      return Math.max(0, Math.min(4, lane));
+    }
+
+    function onPointerDown(e) {
+      const lane = laneFromPointer(e.clientX);
+      tryHit(lane);
+    }
+
+    CANVAS.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    START_BTN.addEventListener("click", startGame);
+    RESTART_BTN.addEventListener("click", restartGame);
+
+    // Intro render
+    render();
+  </script>
+</body>
+</html>
