@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A weekly evidence-first journal study on AI for protein science and drug discovery.">
+  <title>AI4Protein Weekly Radar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top">AI4Protein <span>Weekly Radar</span></a>
+    <nav aria-label="Primary navigation">
+      <a href="#deep-dive">Deep dive</a>
+      <a href="#compare">2026 vs 2021</a>
+      <a href="#radar">Paper radar</a>
+      <a href="../index.html#archive">Archive</a>
+      <a href="https://github.com/mrfeixiang/AI4protein-kr">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">ISSUE 001 · 1 SEPTEMBER 2026 · 10-MIN JOURNAL STUDY</p>
+        <h1>Protein AI learned to design.<br><span>Now biology gets the final vote.</span></h1>
+        <p class="hero-ko">단백질 AI는 구조 예측을 넘어 기능 설계로 이동했다. 하지만 최종 평가는 여전히 실험이 한다.</p>
+        <p class="lede">The five-year shift is not just bigger models. The meaningful change is the unit of evidence: from benchmark accuracy to binding, catalysis, dynamics and prospective wet-lab success.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#deep-dive">Start the 10-minute study</a>
+          <a class="button ghost" href="https://github.com/mrfeixiang/AI4protein-kr">Source repository</a>
+        </div>
+      </div>
+      <aside class="hero-note" aria-label="This week's verdict">
+        <p class="note-label">THIS WEEK'S VERDICT</p>
+        <strong>Prediction is becoming infrastructure. Experimental conversion is the new bottleneck.</strong>
+        <p>약물화학 관점에서는 모델 점수보다 합성 가능성, 결합 검증, 선택성, 기능 변화가 더 중요하다.</p>
+      </aside>
+    </section>
+
+    <section class="numbers" aria-label="Issue overview">
+      <div><strong>12</strong><span>selected papers</span></div>
+      <div><strong>5 years</strong><span>2026 vs 2021</span></div>
+      <div><strong>1</strong><span>wet-lab deep dive</span></div>
+      <div><strong>3</strong><span>lab actions</span></div>
+    </section>
+
+    <section id="deep-dive" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">PAPER OF THE WEEK · PEER REVIEWED</p>
+        <h2>BindCraft: “one design, one binder” becomes a testable claim</h2>
+        <p class="section-ko">이번 주 핵심 논문: 계산 설계가 대규모 스크리닝 의존도를 얼마나 줄였는가?</p>
+      </div>
+
+      <div class="deep-grid">
+        <article class="feature">
+          <p>BindCraft uses AlphaFold2 weights as an optimization engine, generating sequence, backbone and interface together. Across 12 targets, the authors reported experimental success rates of 10 to 100%, averaging 46.3%, with predominantly nanomolar affinities.</p>
+          <div class="evidence-strip">
+            <div><b>Input</b><span>Target structure</span></div>
+            <div><b>Generate</b><span>Binder + interface</span></div>
+            <div><b>Filter</b><span>AF2 + Rosetta metrics</span></div>
+            <div><b>Decide</b><span>SPR and function</span></div>
+          </div>
+          <p class="caution"><b>Read the small print:</b> this is not “press one button and obtain a drug.” The workflow samples hundreds to thousands of trajectories, recommends at least 100 computationally filtered designs, and still relies on experimental testing.</p>
+          <div class="link-row">
+            <a href="https://www.nature.com/articles/s41586-025-09429-6">Nature paper ↗</a>
+            <a href="https://github.com/martinpacesa/BindCraft">GitHub code ↗</a>
+            <a href="https://doi.org/10.5281/zenodo.14249738">Models and data ↗</a>
+          </div>
+        </article>
+
+        <aside class="scorecard">
+          <h3>Medicinal chemistry scorecard</h3>
+          <dl>
+            <div><dt>Prospective wet lab</dt><dd class="yes">Yes</dd></div>
+            <div><dt>Binding assay</dt><dd class="yes">SPR</dd></div>
+            <div><dt>Functional evidence</dt><dd class="yes">Multiple systems</dd></div>
+            <div><dt>Open implementation</dt><dd class="yes">MIT license</dd></div>
+            <div><dt>Clinical validation</dt><dd class="no">Not yet</dd></div>
+          </dl>
+          <p><b>Lab takeaway:</b> use AI to reduce the experiment set, not to replace the experiment.</p>
+          <p class="section-ko">AI는 실험을 없애는 도구가 아니라, 더 좋은 실험 후보를 고르는 도구다.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="compare" class="section compare-section">
+      <div class="section-heading">
+        <p class="eyebrow">THE FIVE-YEAR LENS</p>
+        <h2>2021 vs 2026: what actually changed?</h2>
+      </div>
+      <div class="comparison" role="table" aria-label="2021 versus 2026 comparison">
+        <div class="comparison-row header" role="row">
+          <span role="columnheader">Dimension</span><span role="columnheader">2021</span><span role="columnheader">2026</span>
+        </div>
+        <div class="comparison-row" role="row">
+          <b role="cell">Dominant question</b><span role="cell">What is the structure?</span><span role="cell">What function should we design?</span>
+        </div>
+        <div class="comparison-row" role="row">
+          <b role="cell">Representative tools</b><span role="cell">AlphaFold2, RoseTTAFold, ESM-1b</span><span role="cell">BindCraft, RFdiffusion2, ESM3, Boltz-2, BioEmu</span>
+        </div>
+        <div class="comparison-row" role="row">
+          <b role="cell">Model output</b><span role="cell">A likely fold or representation</span><span role="cell">Sequence, complex, ensemble, affinity or catalytic geometry</span>
+        </div>
+        <div class="comparison-row" role="row">
+          <b role="cell">Strong evidence</b><span role="cell">CASP and retrospective structural accuracy</span><span role="cell">Prospective synthesis, SPR, kinetics and function</span>
+        </div>
+        <div class="comparison-row" role="row">
+          <b role="cell">Persistent weakness</b><span role="cell">Function is not guaranteed by structure</span><span role="cell">Benchmark gains still do not guarantee translation</span>
+        </div>
+      </div>
+      <p class="compare-foot">The honest headline: the field gained controllability and experimental ambition. It did not repeal pharmacology.</p>
+    </section>
+
+    <section id="radar" class="section">
+      <div class="section-heading radar-heading">
+        <div>
+          <p class="eyebrow">12-PAPER EVIDENCE RADAR</p>
+          <h2>Read the paper. Find the code. Check the evidence.</h2>
+        </div>
+        <div class="filters" aria-label="Filter papers">
+          <button class="filter active" data-filter="all">All</button>
+          <button class="filter" data-filter="journal">Journal</button>
+          <button class="filter" data-filter="preprint">Preprint</button>
+          <button class="filter" data-filter="conference">Conference</button>
+        </div>
+      </div>
+
+      <div class="paper-grid">
+        <article class="paper-card" data-type="journal">
+          <div class="paper-meta"><span>2025 · Nature</span><em>Wet lab</em></div>
+          <h3>BindCraft</h3><p>One-shot design of functional protein binders.</p>
+          <div class="card-links"><a href="https://www.nature.com/articles/s41586-025-09429-6">Paper</a><a href="https://github.com/martinpacesa/BindCraft">Code</a></div>
+        </article>
+        <article class="paper-card" data-type="journal">
+          <div class="paper-meta"><span>2025 · Nature Methods</span><em>Wet lab</em></div>
+          <h3>RFdiffusion2</h3><p>Atom-level scaffolding of enzyme active sites from functional-group geometry.</p>
+          <div class="card-links"><a href="https://www.nature.com/articles/s41592-025-02975-x">Paper</a><a href="https://github.com/RosettaCommons/RFdiffusion2">Code</a></div>
+        </article>
+        <article class="paper-card" data-type="journal">
+          <div class="paper-meta"><span>2025 · Nature</span><em>Wet lab</em></div>
+          <h3>Riff-Diff</h3><p>Catalytic motif scaffolding with diffusion and atomistic modeling.</p>
+          <div class="card-links"><a href="https://www.nature.com/articles/s41586-025-09747-9">Paper</a></div>
+        </article>
+        <article class="paper-card" data-type="journal">
+          <div class="paper-meta"><span>2025 · Science</span><em>Foundation model</em></div>
+          <h3>ESM3</h3><p>Joint reasoning over protein sequence, structure and function.</p>
+          <div class="card-links"><a href="https://www.science.org/doi/10.1126/science.ads0018">Paper</a><a href="https://github.com/evolutionaryscale/esm">Code</a></div>
+        </article>
+        <article class="paper-card" data-type="journal">
+          <div class="paper-meta"><span>2025 · Science</span><em>Dynamics</em></div>
+          <h3>BioEmu</h3><p>Generative sampling of protein equilibrium ensembles.</p>
+          <div class="card-links"><a href="https://www.science.org/doi/10.1126/science.adv9817">Paper</a><a href="https://github.com/microsoft/bioemu">Code</a></div>
+        </article>
+        <article class="paper-card" data-type="preprint">
+          <div class="paper-meta"><span>2025 · bioRxiv</span><em>Affinity claim</em></div>
+          <h3>Boltz-2</h3><p>Structure and affinity prediction with an open foundation model.</p>
+          <div class="card-links"><a href="https://www.biorxiv.org/content/10.1101/2025.06.14.659707">Preprint</a><a href="https://github.com/jwohlwend/boltz">Code</a></div>
+        </article>
+        <article class="paper-card" data-type="journal">
+          <div class="paper-meta"><span>2026 · Nature</span><em>Genomics</em></div>
+          <h3>AlphaGenome</h3><p>Sequence-to-function prediction across genomic modalities at base resolution.</p>
+          <div class="card-links"><a href="https://www.nature.com/articles/s41586-025-10014-0">Paper</a><a href="https://github.com/google-deepmind/alphagenome">Code</a></div>
+        </article>
+        <article class="paper-card" data-type="preprint">
+          <div class="paper-meta"><span>2024 · bioRxiv</span><em>VHH design</em></div>
+          <h3>RFantibody</h3><p>Atomically accurate de novo design of single-domain antibodies.</p>
+          <div class="card-links"><a href="https://www.biorxiv.org/content/10.1101/2024.03.14.585103">Preprint</a><a href="https://github.com/RosettaCommons/RFantibody">Code</a></div>
+        </article>
+        <article class="paper-card" data-type="conference">
+          <div class="paper-meta"><span>2025 · ICML</span><em>Conference</em></div>
+          <h3>UniMoMo</h3><p>A unified generative framework highlighted in the source repository's antibody-design map.</p>
+          <div class="card-links"><a href="https://openreview.net/pdf?id=KUN7A7Okb6">Paper</a></div>
+        </article>
+        <article class="paper-card" data-type="journal">
+          <div class="paper-meta"><span>2023 · Nature</span><em>Generative design</em></div>
+          <h3>RFdiffusion</h3><p>Diffusion-based generation of protein structure and function.</p>
+          <div class="card-links"><a href="https://www.nature.com/articles/s41586-023-06415-8">Paper</a><a href="https://github.com/RosettaCommons/RFdiffusion">Code</a></div>
+        </article>
+        <article class="paper-card" data-type="journal">
+          <div class="paper-meta"><span>2022 · Science</span><em>Sequence design</em></div>
+          <h3>ProteinMPNN</h3><p>Fast sequence design conditioned on protein backbone structure.</p>
+          <div class="card-links"><a href="https://www.science.org/doi/10.1126/science.add2187">Paper</a><a href="https://github.com/dauparas/ProteinMPNN">Code</a></div>
+        </article>
+        <article class="paper-card" data-type="journal">
+          <div class="paper-meta"><span>2021 · Nature</span><em>Historical anchor</em></div>
+          <h3>AlphaFold2</h3><p>The structure-prediction breakthrough that became infrastructure for design.</p>
+          <div class="card-links"><a href="https://www.nature.com/articles/s41586-021-03819-2">Paper</a><a href="https://github.com/google-deepmind/alphafold">Code</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section actions-section">
+      <div class="section-heading">
+        <p class="eyebrow">MONDAY-MORNING LAB ACTIONS</p>
+        <h2>Three changes worth making in an AIDD workflow</h2>
+      </div>
+      <ol class="actions-list">
+        <li><span>01</span><div><h3>Define experimental conversion before model ranking</h3><p>Choose the assay, acceptance threshold and negative controls before generating hundreds of candidates.</p></div></li>
+        <li><span>02</span><div><h3>Keep prediction, design and validation as separate columns</h3><p>A good structure score, predicted affinity and measured binding are different claims.</p></div></li>
+        <li><span>03</span><div><h3>Archive code, model version and selection logic</h3><p>Without provenance, a weekly radar becomes a list of names rather than a reproducible decision record.</p></div></li>
+      </ol>
+    </section>
+    <section id="archive" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">ISSUE ARCHIVE</p>
+        <h2>Weekly studies, preserved as a research trail</h2>
+        <p class="section-ko">매주 업데이트를 덮어쓰지 않고 연구 기록으로 남깁니다.</p>
+      </div>
+      <div class="paper-grid">
+        <article class="paper-card">
+          <div class="paper-meta"><span>Issue 001 · 1 September 2026</span><em>Protein AI</em></div>
+          <h3>Protein AI learned to design</h3>
+          <p>From structure prediction to prospective binder, enzyme, dynamics and affinity evidence.</p>
+          <div class="card-links"><a href="../index.html">Latest issue</a></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><b>AI4Protein Weekly Radar</b><p>Evidence-first reading for protein design and medicinal chemistry.</p></div>
+    <div class="footer-links"><a href="https://github.com/mrfeixiang/AI4protein-kr">Repository</a><a href="https://github.com/mrfeixiang/AI4protein-kr/blob/main/README.md">Korean catalog</a></div>
+    <p class="disclaimer">Educational research summary. Claims remain those of the cited authors unless independently validated.</p>
+  </footer>
+  <script src="../app.js"></script>
+</body>
+</html>
