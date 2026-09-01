@@ -1,5 +1,8 @@
 # AI4Protein 2025 한국어 번역
 
+> **New: [AI4Protein Weekly Radar](https://mrfeixiang.github.io/AI4protein-kr/)**  
+> 매주 AI 단백질 설계, AI4S foundation model, 논문 및 GitHub 코드를 10분 분량으로 정리합니다.
+
 시간이 화살처럼 빠르게 흘러, 작년에 AI4Protein 2024를 정리했습니다. 연말 정리가 전통이 되어 본 글을 작성하게 되었습니다.
 
 올해 많은 논문을 살펴보면서 2025년의 몇 가지 현상과 트렌드를 발견했습니다:
