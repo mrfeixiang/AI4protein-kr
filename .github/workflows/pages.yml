@@ -7,6 +7,7 @@ on:
       - "index.html"
       - "styles.css"
       - "app.js"
+      - "issues/**"
       - ".nojekyll"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
