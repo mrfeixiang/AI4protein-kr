@@ -1,5 +1,8 @@
 # AI4Protein 2025 한국어 번역
 
+> **Lab homepage: [MediChem Lab | Gachon University](https://medichem-system.drbee.chatgpt.site)**  
+> Medicinal chemistry × AI drug discovery, current projects, papers, and open-source resources.
+
 > **New: [AI4Protein Weekly Radar](https://mrfeixiang.github.io/AI4protein-kr/)**  
 > 매주 AI 단백질 설계, AI4S foundation model, 논문 및 GitHub 코드를 10분 분량으로 정리합니다.
 
